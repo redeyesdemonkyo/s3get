@@ -1,4 +1,4 @@
-# s3 object gettter
+# s3get simple object storage downloader
 
 ## WHy should you use it
 s3get provides a simple cli go binary that allows downloading of S3 compatible
