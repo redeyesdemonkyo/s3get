@@ -28,16 +28,20 @@ var srcBucket string
 var srcObject string
 var secretKey string
 var accessKey string
+var Dest string
+var Anonyous bool
 var Help bool
 
 func init() {
-	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`") // by using `url` it overrides flag type from string to url
+	// by using `url` it overrides flag type from string to url
+	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`")
 	flag.StringVar(&srcBucket, "b", "", "Bucket name")
+	flag.StringVar(&Dest, "d", "", "Destination path ie for linux/Mac: /path/2/save/ or for Windows: C:\\temp\\ ")
 	flag.StringVar(&srcObject, "o", "", "Object to download.  If the object is under a directory include the whole path: 'subdir/my.object")
 	flag.StringVar(&secretKey, "s", os.Getenv("AWS_SECRET_KEY"), "Secret key.  Defaults to using environment variable: AWS_SECRET_KEY")
 	flag.StringVar(&accessKey, "a", os.Getenv("AWS_ACCESS_KEY"), "Access key.  Defaults to using environment variable: AWS_ACCESS_KEY")
-	flag.BoolVar(&Help, "h", false ,"Print usage info")
-
+	flag.BoolVar(&Anonyous, "p", false, "For public objects.  Will skip authentication")
+	flag.BoolVar(&Help, "h", false, "Print usage info")
 }
 
 func main() {
@@ -47,25 +51,35 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
+	// define Creds varriable as aws.Config struct type
+	var Creds = &aws.Config{
+		Endpoint:         aws.String(EndPoint),
+		Region:           aws.String("us-west-2"), // only here cause its required by the library but does not matter for the actual download procees.
+		S3ForcePathStyle: aws.Bool(true),
+		//Credentials:      credentials.AnonymousCredentials,
+	}
+
 	// print usage or verify we got at least bucket
 	if Help || len(srcBucket) < 1 {
 		usage()
 	}
 
-	// verify we have require keys to auth
-	if len(accessKey) < 1 || len(secretKey) < 1 {
-		fmt.Print("!!You did NOT specified access & secret key.  See usage for more info!!\n\n")
-		usage()
+	if Anonyous {
+		// append struct field to the struct variable
+		Creds.Credentials = credentials.AnonymousCredentials
+	} else {
+		Creds.Credentials = credentials.NewStaticCredentials(accessKey, secretKey, "")
+
+		// verify we have require keys to auth
+		if len(accessKey) < 1 || len(secretKey) < 1 {
+			fmt.Print("!!You did NOT specified access & secret key.  See usage for more info!!\n\n")
+			usage()
+		}
 	}
 
 	// aws: https://docs.aws.amazon.com/sdk-for-go/api/aws/session
 	// helpful google golang example using HMAC credentials: https://cloud.google.com/storage/docs/samples/storage-s3-sdk-list-objects
-	mySession, err := session.NewSession(&aws.Config{
-		Endpoint:         aws.String(EndPoint),
-		Region:           aws.String("us-west-2"), // only here cause its required by the library but does not matter for the actual download procees.
-		S3ForcePathStyle: aws.Bool(true),
-		Credentials:      credentials.NewStaticCredentials(accessKey, secretKey, ""),
-	})
+	mySession, err := session.NewSession(Creds)
 	if err != nil {
 		msg := fmt.Errorf("failed to initilize session %v", err)
 		catch(msg)
@@ -75,12 +89,19 @@ func main() {
 	//s3Client := s3.New(mySession)
 	s3Client := s3manager.NewDownloader(mySession)
 
-	// create file so we can write to it from NewDownloader
 	BaseObject := filepath.Base(srcObject)
-	fmt.Printf("Creating file object: %s\n", BaseObject)
-	f, err := os.Create(BaseObject)
+	var Dir, DestFile string
+	if len(Dest) > 1 {
+		Dir = filepath.Dir(Dest)
+		DestFile = Dir + "/" + BaseObject
+	} else {
+		DestFile = BaseObject
+	}
+
+	fmt.Printf("Creating file object: %s\n", DestFile)
+	// create file so we can write to it from NewDownloader
+	f, err := os.Create(DestFile)
 	if err != nil {
-		//return fmt.Errorf("failed to create file %q, %v", srcObject, err)
 		msg := fmt.Errorf("failed to create file %q, %v", srcObject, err)
 		catch(msg)
 	}

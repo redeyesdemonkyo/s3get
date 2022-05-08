@@ -1,4 +1,4 @@
-# s3get simple object storage downloader
+# s3get simple cli object storage downloader
 
 ## WHy should you use it
 s3get provides a simple cli go binary that allows downloading of S3 compatible
@@ -27,7 +27,7 @@ s3get is written by leveraging the `aws-sdk-go` golang package
 
 ## development
 
-* golang >= v1.18
+* golang >= v1.18 (see installing [Go](https://go.dev/doc/manage-install))
 * initialize `go.mod`
 
 ```sh
@@ -59,10 +59,17 @@ make
 
 ### Testing
 
-* test run
+* test run with out compiling
 
 ```sh
 go run s3get.go -b mybucket -o subDirectory/my.object
+```
+
+* test downloading public file (uses anonymous authentication) 
+
+
+```sh
+go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg
 ```
 
 ## TODO
@@ -76,6 +83,7 @@ go run s3get.go -b mybucket -o subDirectory/my.object
 * aws documentation: https://docs.aws.amazon.com/sdk-for-go/api/aws/session
 * helpful google golang documentation example using HMAC credentials: https://cloud.google.com/storage/docs/samples/storage-s3-sdk-list-objects
 * google HMAC docs: https://cloud.google.com/storage/docs/authentication/hmackeys
+* installing Golang: https://go.dev/doc/install or https://go.dev/doc/manage-install or https://golangdocs.com/install-go-linux
 
 ## License
 * TODO!!
