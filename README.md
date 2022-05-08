@@ -28,7 +28,7 @@ s3get is written by leveraging the `aws-sdk-go` golang package
 ## development
 
 * golang >= v1.18 (see installing [Go](https://go.dev/doc/manage-install))
-* initialize `go.mod`
+* initialize `go.mod` ie: `go mod init <package-name>`
 
 ```sh
 go mod init s3get
@@ -50,10 +50,24 @@ go mod tidy
 
 ## building
 
-* TODO: write make file
+* view list of build supported platforms (operating systems)
 
 ```sh
-make
+go tool dist list
+```
+
+* building
+
+```sh
+GOOS=linux GOARCH=amd64 go build -v -o ./bin/s3get-linux 
+```
+
+
+* building using `Makefile` which will build for all 3 OS: linux, windows, darwin (OSx)
+
+
+```sh
+make build
 ```
 
 
@@ -74,9 +88,9 @@ go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg
 
 ## TODO
 
-* add test downloading public files via anonymous request
 * add flag for handling sha256 checks
 * add a percentage or progress bar (try using async)
+* add flag for splitting using `https://s3provider.tld/mybucket/dir/to/object.file` link rather then having to pass individual flags for provider, bucket & object
 
 ## References
 

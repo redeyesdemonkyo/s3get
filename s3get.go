@@ -86,8 +86,8 @@ func main() {
 	}
 
 	// create a client from the session and pass additional configuration
-	//s3Client := s3.New(mySession)
-	s3Client := s3manager.NewDownloader(mySession)
+	s3Client := s3.New(mySession)
+	s3Downloader := s3manager.NewDownloader(mySession)
 
 	BaseObject := filepath.Base(srcObject)
 	var Dir, DestFile string
@@ -98,7 +98,12 @@ func main() {
 		DestFile = BaseObject
 	}
 
-	fmt.Printf("Creating file object: %s\n", DestFile)
+	objectSize, err := getFileSize(s3Client, srcBucket, srcObject)
+	if err != nil {
+		catch(fmt.Errorf("There was an error getting file size %v", err))
+	}
+
+	fmt.Printf("Creating file object: %s with total size of %d\n", DestFile, objectSize)
 	// create file so we can write to it from NewDownloader
 	f, err := os.Create(DestFile)
 	if err != nil {
@@ -107,8 +112,8 @@ func main() {
 	}
 
 	// download it and write to file
-	fmt.Printf("Downloading %s/%s\n", srcBucket, srcObject)
-	n, err := s3Client.Download(f, &s3.GetObjectInput{
+	fmt.Printf("Downloading oject: %s from bucket: %s\n", srcObject, srcBucket)
+	n, err := s3Downloader.Download(f, &s3.GetObjectInput{
 		Bucket: aws.String(srcBucket),
 		Key:    aws.String(srcObject),
 	})
@@ -118,6 +123,20 @@ func main() {
 	}
 
 	fmt.Printf("file downloaded, %d bytes\n", n)
+}
+
+func getFileSize(c *s3.S3, bucket string, key string) (size int64, error error) {
+	params := &s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}
+
+	s, err := c.HeadObject(params)
+	if err != nil {
+		return 0, err
+	}
+
+	return *s.ContentLength, nil
 }
 
 func usage() {
