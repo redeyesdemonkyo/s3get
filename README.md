@@ -21,11 +21,11 @@ for your packages or other private binaries.
 
 You can download any of these pre-build binaries for your operating system
 
-* [linux s3get](https://objects-us-east-1.dream.io/pub-binaries/linux/s3get) sha256: 4771e6924befceaa3fb9fb235d8b7d85395fdc8e014bae90f941437bb02741bd
+* [linux s3get](https://objects-us-east-1.dream.io/pub-binaries/linux/s3get) sha256: `4771e6924befceaa3fb9fb235d8b7d85395fdc8e014bae90f941437bb02741bd`
   
-* [darwin s3get](https://objects-us-east-1.dream.io/pub-binaries/darwin/s3get) sha256: d83788f39b39827f7ac056e08c03e891e8e8ac26ec3767f522d817fc36405d27
+* [darwin s3get](https://objects-us-east-1.dream.io/pub-binaries/darwin/s3get) sha256: `d83788f39b39827f7ac056e08c03e891e8e8ac26ec3767f522d817fc36405d27`
 
-* [windows s3get](https://objects-us-east-1.dream.io/pub-binaries/windows/s3get) sha256: 8d3792c6f3694369b089eed24a0d887fb5557dc3b85fcedbd7c65648d993ae06
+* [windows s3get](https://objects-us-east-1.dream.io/pub-binaries/windows/s3get) sha256: `8d3792c6f3694369b089eed24a0d887fb5557dc3b85fcedbd7c65648d993ae06`
 
 
 ## Installation
