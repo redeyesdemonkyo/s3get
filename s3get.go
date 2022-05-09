@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/cheggaaa/pb"
+	"github.com/cheggaaa/pb/v3"
 )
 
 // defining the string literal for usage
@@ -116,18 +116,20 @@ func main() {
 		catch(fmt.Errorf("There was an error getting file size %v", err))
 	}
 
-	bar := pb.New64(objectSize).SetUnits(pb.U_BYTES)
-	bar.Start()
-	temp, err := ioutil.TempFile(Dir, "s3get-progress-tmp-")
+	// for previous bar version (pre v3)
+	//bar := pb.New64(objectSize).SetUnits(pb.U_BYTES)
+	//bar.Start()
+
+	// template for bar.  Uses unicode characters for cycle
+	tmpl := `{{ counters . | red }} {{ bar . "[" "#" (cycle . "↖" "↑" "↗" "↘" "↓" "↙" | yellow ) "." "]" | green }} {{ percent . }} {{ speed . | green }} {{ rtime . | blue}}`
+
+	// initiate bar
+	//bar := pb.Full.Start64(objectSize) // for using with out template
+	bar := pb.ProgressBarTemplate(tmpl).Start64(objectSize)
+	temp, err := ioutil.TempFile(Dir, "s3get-tmp-")
 	writer := &ProgressWriter{temp, bar}
 
 	fmt.Printf("Creating file object: %s with total size of %d\n", DestFile, objectSize)
-	// create file so we can write to it from NewDownloader
-	// f, err := os.Create(DestFile)
-	// if err != nil {
-	// 	msg := fmt.Errorf("failed to create file %q, %v", srcObject, err)
-	// 	catch(msg)
-	// }
 
 	// download it and write to file
 	fmt.Printf("Downloading oject: %s from bucket: %s\n", srcObject, srcBucket)

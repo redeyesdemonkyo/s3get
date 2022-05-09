@@ -1,8 +1,8 @@
 # s3get simple cli object storage downloader
 
-## WHy should you use it
+## Why use it
 s3get provides a simple cli go binary that allows downloading of S3 compatible
-storage such as AWS S3, Google Cloud Storage (Using HMAC credentials), or Ceph
+storage objects such as AWS S3, Google Cloud Storage (Using HMAC credentials), or Ceph
 (Using Ceph Object Gateway)
 
 The idea is to follow the `linux/Unix Principle` that a cli utility should be
@@ -12,17 +12,38 @@ Unline many other already available tools, this one is mainly interface to use
 the `access key` and `secret key` for authentication and additionaly does not
 require external usage of libraries like boto
 
-s3get is written by leveraging the `aws-sdk-go` golang package
+s3get is written by leveraging the `aws-sdk-go` golang package.
 
 ## requirements
 
-* You need to have an `access key` and `secret key` with access to the bucket and object
+* You need to have an `access key` and `secret key` with `READ` access to the bucket and object for non public objects
 
 
 ## Usage
-* TODO
+* get full usage help menu
 
 ```sh
+s3get -h
+```
+
+* downloading a public object from a Ceph object storage
+
+```sh
+s3get -e objects-us-east-1.dream.io -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -p -d /home/flynn/tmp/
+```
+
+* download object file from Google Storage bucket.  Using [HMAC keys](https://cloud.google.com/storage/docs/authentication/hmackeys) and exported as environment variables; `AWS_SECRET_KEY` and `AWS_ACCESS_KEY`  The file will be save to `~/tmp` dir
+
+> NOTE: no need to specify endpoint since GCP is the default endpoint for s3get
+
+```sh
+s3get -b mybucket -o path/to/my.object -d ~/tmp/
+```
+
+* download from AWS S3 bucket.  TODO usage example!!
+
+```sh
+s3get -e <https://aws-endpoint.tld> -a Acc3sKey -s SeCR3TKey -b thebucketName -o myfile.object
 ```
 
 ## development
@@ -35,7 +56,7 @@ go mod init s3get
 ```
 
 * Once you have your `go.mod` initialized you can use `go get <package>` to
-intall require packages.  This will also add the package to your `go.mod`
+intall require packages or simply run `go mod tidy`.  This will also add the package to your `go.mod`
 require packages.
 
 ```sh
@@ -81,15 +102,27 @@ go run s3get.go -b mybucket -o subDirectory/my.object
 
 * test downloading public file (uses anonymous authentication) 
 
-
 ```sh
-go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg
+go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -d ~/tmp/
 ```
 
-## TODO
+* testing windows TODO!!
 
+```ps1
+s3get TODO
+```
+
+* testing MacOSX (darwin)
+
+```sh
+s3get TODO
+```
+
+## Feature Improvements
+
+* add test cases
 * add flag for handling sha256 checks
-* add a percentage or progress bar (try using async)
+* add rsync like functionality
 * add flag for splitting using `https://s3provider.tld/mybucket/dir/to/object.file` link rather then having to pass individual flags for provider, bucket & object
 
 ## References
@@ -98,7 +131,8 @@ go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg
 * helpful google golang documentation example using HMAC credentials: https://cloud.google.com/storage/docs/samples/storage-s3-sdk-list-objects
 * google HMAC docs: https://cloud.google.com/storage/docs/authentication/hmackeys
 * installing Golang: https://go.dev/doc/install or https://go.dev/doc/manage-install or https://golangdocs.com/install-go-linux
+* using bar: https://github.com/cheggaaa/pb
 
 ## License
-* TODO!!
-This is free software under the terms of MIT the license
+  
+This is free software under the terms of MIT the license, See [LICENSE](https://github.com/redeyesdemonkyo/s3get/blob/main/LICENSE) for more information.
