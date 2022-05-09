@@ -15,7 +15,8 @@ require external usage of libraries like boto.
 A good use case for `s3get` is where you are using private buckets and objects as repos
 for your packages or other private binaries.
 
-`s3get` is written by leveraging the `aws-sdk-go` golang package.
+`s3get` is written by leveraging the `aws-sdk-go` golang package with some extras 
+including the usage of a progress [bar](https://github.com/cheggaaa/pb) with a custom template.
 
 ## binaries
 
@@ -76,7 +77,7 @@ Downloading oject: Downloads/linuxmint-20.3-mate-64bit.iso from bucket: imgun
 
 * download object file from Google Storage bucket.  Using [HMAC keys](https://cloud.google.com/storage/docs/authentication/hmackeys) and exported as environment variables; `AWS_SECRET_KEY` and `AWS_ACCESS_KEY`  The file will be save to `~/tmp` dir
 
-> NOTE: no need to specify endpoint since GCP is the default endpoint for s3get
+> NOTE: no need to specify the Google Storage endpoint since GCP is the default endpoint for s3get
 
 ```sh
 s3get -b mybucket -o path/to/my.object -d ~/tmp/
