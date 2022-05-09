@@ -10,9 +10,28 @@ small and perform one task very well.  Think of `wget` as an example.
 
 Unline many other already available tools, this one is mainly interface to use
 the `access key` and `secret key` for authentication and additionaly does not
-require external usage of libraries like boto
+require external usage of libraries like boto.
+
+A good use case for `s3get` is where you are using private buckets and objects as repos
+for your packages or other private binaries.
 
 s3get is written by leveraging the `aws-sdk-go` golang package.
+
+## binaries
+
+You can download any of these build binaries for your operating system
+
+* [linux s3get](https://objects-us-east-1.dream.io/pub-binaries/linux/s3get) sha256: 4771e6924befceaa3fb9fb235d8b7d85395fdc8e014bae90f941437bb02741bd
+  
+* [darwin s3get](https://objects-us-east-1.dream.io/pub-binaries/darwin/s3get) sha256: d83788f39b39827f7ac056e08c03e891e8e8ac26ec3767f522d817fc36405d27
+
+* [windows s3get](https://objects-us-east-1.dream.io/pub-binaries/windows/s3get) sha256: 8d3792c6f3694369b089eed24a0d887fb5557dc3b85fcedbd7c65648d993ae06
+
+
+## installation
+
+No installation required if you get the pre-build [binaries](#binaries) else checkout the [building](#building) section
+
 
 ## requirements
 
