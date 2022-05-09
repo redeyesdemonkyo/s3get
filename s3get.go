@@ -40,7 +40,7 @@ func init() {
 	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`")
 	flag.StringVar(&srcBucket, "b", "", "Bucket name")
 	flag.StringVar(&Dest, "d", "", "Destination path ie for linux/Mac: /path/2/save/ or for Windows: C:\\temp\\ ")
-	flag.StringVar(&srcObject, "o", "", "Object to download.  If the object is under a directory include the whole path: 'subdir/my.object")
+	flag.StringVar(&srcObject, "o", "", "Object to download.  If the object is under a directory include the whole path: subdir/myobject.file")
 	flag.StringVar(&secretKey, "s", os.Getenv("AWS_SECRET_KEY"), "Secret key.  Defaults to using environment variable: AWS_SECRET_KEY")
 	flag.StringVar(&accessKey, "a", os.Getenv("AWS_ACCESS_KEY"), "Access key.  Defaults to using environment variable: AWS_ACCESS_KEY")
 	flag.BoolVar(&Anonyous, "p", false, "For public objects.  Will skip authentication")
