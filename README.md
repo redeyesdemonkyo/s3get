@@ -65,10 +65,13 @@ Usage: /tmp/go-build3389196233/b001/exe/s3get -b <bucket> -o <path/to/my.object>
         Secret key.  Defaults to using environment variable: AWS_SECRET_KEY
 ```
 
-* downloading a public object from a Ceph object storage
+* downloading a public object from a Ceph object storage and save it to `~/tmp/` dir
 
 ```sh
-s3get -e objects-us-east-1.dream.io -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -p -d /home/flynn/tmp/
+$ s3get -e objects-us-east-1.dream.io -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -p -d ~/tmp/
+Creating file object: /home/flynn/tmp/linuxmint-20.3-mate-64bit.iso with total size of 2239365120
+Downloading oject: Downloads/linuxmint-20.3-mate-64bit.iso from bucket: imgun
+27436972 / 2239365120 [#######↙......................................................] 1.23% 2427676 p/s 15m11s
 ```
 
 * download object file from Google Storage bucket.  Using [HMAC keys](https://cloud.google.com/storage/docs/authentication/hmackeys) and exported as environment variables; `AWS_SECRET_KEY` and `AWS_ACCESS_KEY`  The file will be save to `~/tmp` dir
