@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -11,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/cheggaaa/pb"
 )
 
 // defining the string literal for usage
@@ -42,6 +45,16 @@ func init() {
 	flag.StringVar(&accessKey, "a", os.Getenv("AWS_ACCESS_KEY"), "Access key.  Defaults to using environment variable: AWS_ACCESS_KEY")
 	flag.BoolVar(&Anonyous, "p", false, "For public objects.  Will skip authentication")
 	flag.BoolVar(&Help, "h", false, "Print usage info")
+}
+
+type ProgressWriter struct {
+	w  io.WriterAt
+	pb *pb.ProgressBar
+}
+
+func (pw ProgressWriter) WriteAt(p []byte, off int64) (int, error) {
+	pw.pb.Add(len(p))
+	return pw.w.WriteAt(p, off)
 }
 
 func main() {
@@ -103,23 +116,35 @@ func main() {
 		catch(fmt.Errorf("There was an error getting file size %v", err))
 	}
 
+	bar := pb.New64(objectSize).SetUnits(pb.U_BYTES)
+	bar.Start()
+	temp, err := ioutil.TempFile(Dir, "s3get-progress-tmp-")
+	writer := &ProgressWriter{temp, bar}
+
 	fmt.Printf("Creating file object: %s with total size of %d\n", DestFile, objectSize)
 	// create file so we can write to it from NewDownloader
-	f, err := os.Create(DestFile)
-	if err != nil {
-		msg := fmt.Errorf("failed to create file %q, %v", srcObject, err)
-		catch(msg)
-	}
+	// f, err := os.Create(DestFile)
+	// if err != nil {
+	// 	msg := fmt.Errorf("failed to create file %q, %v", srcObject, err)
+	// 	catch(msg)
+	// }
 
 	// download it and write to file
 	fmt.Printf("Downloading oject: %s from bucket: %s\n", srcObject, srcBucket)
-	n, err := s3Downloader.Download(f, &s3.GetObjectInput{
+	n, err := s3Downloader.Download(writer, &s3.GetObjectInput{
 		Bucket: aws.String(srcBucket),
 		Key:    aws.String(srcObject),
 	})
 	if err != nil {
-		msg := fmt.Errorf("failed to download file, %v", err)
-		catch(msg)
+		catch(fmt.Errorf("failed to download file, %v", err))
+	}
+
+	if err := temp.Close(); err != nil {
+		catch(fmt.Errorf("failed to close temp file %v", err))
+	}
+
+	if err := os.Rename(temp.Name(), DestFile); err != nil {
+		catch(fmt.Errorf("failed to rename temp file error: %v", err))
 	}
 
 	fmt.Printf("file downloaded, %d bytes\n", n)
