@@ -8,9 +8,9 @@ storage objects such as AWS S3, Google Cloud Storage (Using HMAC credentials), o
 The idea is to follow the `linux/Unix Principle` that a cli utility should be
 small and perform one task very well.  Think of `wget` as an example.
 
-Unline many other already available tools, this one is mainly interface to use
-the `access key` and `secret key` for authentication and additionaly does not
-require external usage of libraries like boto.
+Unline many other already available tools, `s3get`  does not require external libraries
+to use, such as boto.  Its mainly interface to use the `access key`and `secret key` 
+for authentication.
 
 A good use case for `s3get` is where you are using private buckets and objects as repos
 for your packages or other private binaries.
@@ -20,13 +20,15 @@ including the usage of a progress [bar](https://github.com/cheggaaa/pb) with a c
 
 ## binaries
 
-You can download any of these pre-build binaries for your operating system
+You can download any of the latest pre-build binaries for your operating system or simply build your own.
+
+> Make sure to make `chmod +x` and the windows executable should end with `.exe`
 
 * [linux s3get](https://objects-us-east-1.dream.io/pub-binaries/linux/s3get) sha256: `4771e6924befceaa3fb9fb235d8b7d85395fdc8e014bae90f941437bb02741bd`
   
-* [darwin s3get](https://objects-us-east-1.dream.io/pub-binaries/darwin/s3get) sha256: `d83788f39b39827f7ac056e08c03e891e8e8ac26ec3767f522d817fc36405d27`
+* [darwin/MacOSx s3get](https://objects-us-east-1.dream.io/pub-binaries/darwin/s3get) sha256: `d83788f39b39827f7ac056e08c03e891e8e8ac26ec3767f522d817fc36405d27`
 
-* [windows s3get](https://objects-us-east-1.dream.io/pub-binaries/windows/s3get) sha256: `8d3792c6f3694369b089eed24a0d887fb5557dc3b85fcedbd7c65648d993ae06`
+* [windows s3get.exe](https://objects-us-east-1.dream.io/pub-binaries/windows/s3get.exe) sha256: `8d3792c6f3694369b089eed24a0d887fb5557dc3b85fcedbd7c65648d993ae06`
 
 
 ## Installation
@@ -40,6 +42,9 @@ You need to have an `access key` and `secret key` with `READ` access to the buck
 
 
 ## Usage
+
+* export your `AWS_ACCESS_KEY` & `AWS_SECRET_KEY` as an environment variables or pass them as a flag argument.
+
 * get full usage help menu
 
 ```sh

@@ -52,6 +52,7 @@ type ProgressWriter struct {
 	pb *pb.ProgressBar
 }
 
+// define method function of type ProgressWriter
 func (pw ProgressWriter) WriteAt(p []byte, off int64) (int, error) {
 	pw.pb.Add(len(p))
 	return pw.w.WriteAt(p, off)
@@ -69,7 +70,6 @@ func main() {
 		Endpoint:         aws.String(EndPoint),
 		Region:           aws.String("us-west-2"), // only here cause its required by the library but does not matter for the actual download procees.
 		S3ForcePathStyle: aws.Bool(true),
-		//Credentials:      credentials.AnonymousCredentials,
 	}
 
 	// print usage or verify we got at least bucket
@@ -116,16 +116,13 @@ func main() {
 		catch(fmt.Errorf("There was an error getting file size %v", err))
 	}
 
-	// for previous bar version (pre v3)
-	//bar := pb.New64(objectSize).SetUnits(pb.U_BYTES)
-	//bar.Start()
-
 	// template for bar.  Uses unicode characters for cycle
-	tmpl := `{{ counters . | red }} {{ bar . "[" "#" (cycle . "↖" "↑" "↗" "↘" "↓" "↙" | yellow ) "." "]" | green }} {{ percent . }} {{ speed . | green }} {{ rtime . | blue}}`
+	tmpl := `{{ counters . | red }} {{ bar . "[" "#" (cycle . "↖" "↗" "↘" "↙" | yellow ) "." "]" | green }} {{ percent . }} {{ rtime . | yellow }} {{ speed . | green }}`
 
 	// initiate bar
 	//bar := pb.Full.Start64(objectSize) // for using with out template
 	bar := pb.ProgressBarTemplate(tmpl).Start64(objectSize)
+	bar.Set(pb.Bytes, true) // format as bytes output ie B, KiB, MiB
 	temp, err := ioutil.TempFile(Dir, "s3get-tmp-")
 	writer := &ProgressWriter{temp, bar}
 
