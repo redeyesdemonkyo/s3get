@@ -22,7 +22,7 @@ including the usage of a progress [bar](https://github.com/cheggaaa/pb) with a c
 
 You can download any of the latest pre-build binaries for your operating system or simply build your own.
 
-> Make sure to make `chmod +x` and the windows executable should end with `.exe`
+> Make sure to `chmod +x` the binary for linux/Mac and for windows append `.exe` to make it executable ie: `s3get.exe`
 
 * [linux s3get](https://objects-us-east-1.dream.io/pub-binaries/linux/s3get) sha256: `4771e6924befceaa3fb9fb235d8b7d85395fdc8e014bae90f941437bb02741bd`
   
