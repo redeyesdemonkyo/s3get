@@ -38,7 +38,7 @@ No installation required if you get the pre-build [binaries](#binaries) else che
 
 ## requirements
 
-You need to have an `access key` and `secret key` with `READ` access to the bucket and object for non public objects
+You need to have an `AWS_SECRET_KEY` and `AWS_ACCESS_KEY` with `READ` access to the bucket and object for non public objects
 
 
 ## Usage
@@ -75,7 +75,7 @@ Usage: /tmp/go-build3389196233/b001/exe/s3get -b <bucket> -o <path/to/my.object>
 
 ```sh
 $ s3get -e objects-us-east-1.dream.io -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -p -d ~/tmp/
-Creating file object: /home/flynn/tmp/linuxmint-20.3-mate-64bit.iso with total size of 2239365120
+Creating file object: /flynn/tmp/linuxmint-20.3-mate-64bit.iso with total size of 2239365120
 Downloading oject: Downloads/linuxmint-20.3-mate-64bit.iso from bucket: imgun
 27436972 / 2239365120 [#######↙......................................................] 1.23% 2427676 p/s 15m11s
 ```
@@ -88,7 +88,7 @@ Downloading oject: Downloads/linuxmint-20.3-mate-64bit.iso from bucket: imgun
 s3get -b mybucket -o path/to/my.object -d ~/tmp/
 ```
 
-* download from AWS S3 bucket.  TODO usage example!!
+* download from AWS S3 bucket passing the `AWS_SECRET_KEY` and `AWS_ACCESS_KEY` as flags
 
 ```sh
 s3get -e <https://aws-endpoint.tld> -a Acc3sKey -s SeCR3TKey -b thebucketName -o myfile.object
@@ -136,6 +136,7 @@ GOOS=linux GOARCH=amd64 go build -v -o ./bin/s3get-linux
 
 
 ```sh
+make clean
 make build
 ```
 
@@ -154,16 +155,16 @@ go run s3get.go -b mybucket -o subDirectory/my.object
 go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -d ~/tmp/
 ```
 
-* testing windows TODO!!
+* testing windows once build
 
 ```ps1
-s3get TODO
+s3get.exe -e objects-us-east-1.dream.io -p -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -d .\Downloads\
 ```
 
 * testing MacOSX (darwin)
 
 ```sh
-s3get TODO
+s3get.go -e objects-us-east-1.dream.io -p -b imgun -o Downloads/linuxmint-20.3-mate-64bit.iso -d ~/tmp/
 ```
 
 ## Feature Improvements
