@@ -169,8 +169,12 @@ s3get.go -e objects-us-east-1.dream.io -p -b imgun -o Downloads/linuxmint-20.3-m
 
 ## Feature Improvements
 
-* add test cases
+Essentially a TODO list
+
+* add unit test via `go test -v`
+  - More info [go.dev/add-a-test](https://go.dev/doc/tutorial/add-a-test)
 * add flag for handling sha256 checks
+* Fix bug where when `-d /path/to/newObjectName.file` flag is use the object is not rename correctly
 * add rsync like functionality
 * add flag for splitting using `https://s3provider.tld/mybucket/dir/to/object.file` link rather then having to pass individual flags for provider, bucket & object
 

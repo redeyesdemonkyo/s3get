@@ -33,20 +33,32 @@ var secretKey string
 var accessKey string
 var Dest string
 var Anonyous bool
+var sha256 string
+var sha1 string
+var md5 string
 var Help bool
 
 func init() {
-	// by using `url` it overrides flag type from string to url
-	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`")
+	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`") // by using `url` it overrides flag type from string to url
 	flag.StringVar(&srcBucket, "b", "", "Bucket name")
 	flag.StringVar(&Dest, "d", "", "Destination path ie for linux/Mac: /path/2/save/ or for Windows: C:\\temp\\ ")
 	flag.StringVar(&srcObject, "o", "", "Object to download.  If the object is under a directory include the whole path: subdir/myobject.file")
 	flag.StringVar(&secretKey, "s", os.Getenv("AWS_SECRET_KEY"), "Secret key.  Defaults to using environment variable: AWS_SECRET_KEY")
 	flag.StringVar(&accessKey, "a", os.Getenv("AWS_ACCESS_KEY"), "Access key.  Defaults to using environment variable: AWS_ACCESS_KEY")
 	flag.BoolVar(&Anonyous, "p", false, "For public objects.  Will skip authentication")
+	flag.StringVar(&sha256, "sha256", "", "the sha256 hash to verify the oject checksum")
+	flag.StringVar(&sha1, "sha1", "", "the sha1 hash to verify the oject checksum")
+	flag.StringVar(&md5, "md5", "", "the md5 hash to verify the oject checksum")
 	flag.BoolVar(&Help, "h", false, "Print usage info")
 }
 
+func usage() {
+	fmt.Printf(usageMessage, os.Args[0])
+	flag.PrintDefaults()
+	os.Exit(1)
+}
+
+// method for the progressbar
 type ProgressWriter struct {
 	w  io.WriterAt
 	pb *pb.ProgressBar
@@ -138,6 +150,12 @@ func main() {
 		catch(fmt.Errorf("failed to download file, %v", err))
 	}
 
+	// checksum verification
+	if len(md5) > 1 {
+		// call verifyCheckSum
+
+	}
+
 	if err := temp.Close(); err != nil {
 		catch(fmt.Errorf("failed to close temp file %v", err))
 	}
@@ -147,6 +165,15 @@ func main() {
 	}
 
 	fmt.Printf("file downloaded, %d bytes\n", n)
+}
+
+func verifyCheckSum(algo string, h string) {
+	// which hash algo from flags
+
+	// calculate hash
+
+	// does it match flag hash?
+	// return true/false
 }
 
 func getFileSize(c *s3.S3, bucket string, key string) (size int64, error error) {
@@ -161,12 +188,6 @@ func getFileSize(c *s3.S3, bucket string, key string) (size int64, error error) 
 	}
 
 	return *s.ContentLength, nil
-}
-
-func usage() {
-	fmt.Printf(usageMessage, os.Args[0])
-	flag.PrintDefaults()
-	os.Exit(1)
 }
 
 func catch(err error) {
