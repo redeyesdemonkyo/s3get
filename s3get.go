@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"hash"
 	"io"
 	"io/ioutil"
 	"os"
@@ -50,7 +51,7 @@ func init() {
 	flag.StringVar(&accessKey, "a", os.Getenv("AWS_ACCESS_KEY"), "Access key.  Defaults to using environment variable: AWS_ACCESS_KEY")
 	flag.BoolVar(&Anonyous, "p", false, "For public objects.  Will skip authentication")
 	flag.StringVar(&checksum, "checksum", "", "the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5")
-	flag.StringVar(&checksum, "c", "", "the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5 (shorthand)")
+	flag.StringVar(&checksum, "c", "", "the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5")
 	flag.BoolVar(&Help, "h", false, "Print usage info")
 }
 
@@ -177,54 +178,30 @@ func verifyCheckSum(c string, f *os.File) error {
 	sp := strings.Split(c, ":")
 	fmt.Printf("algo: %s hash: %s\n", sp[0], sp[1])
 
+	var h hash.Hash
 	if sp[0] == "sha256" {
-		h := sha256.New()
-		if _, err := io.Copy(h, f); err != nil {
-			return fmt.Errorf("Unable to checksum data")
-		}
-
-		// calculate hash
-		CalcSum := h.Sum(nil)
-		strSum := hex.EncodeToString(CalcSum) // Sum hash requires to be hex decoded
-		fmt.Printf("calculated sum: %s\n", strSum)
-		if strSum != sp[1] {
-			return fmt.Errorf("Error hash did not match")
-		} else {
-			return nil
-		}
+		h = sha256.New()
 	} else if sp[0] == "sha1" {
-		h := sha1.New()
-		if _, err := io.Copy(h, f); err != nil {
-			return fmt.Errorf("Unable to checksum data")
-		}
-
-		// calculate hash
-		CalcSum := h.Sum(nil)
-		strSum := hex.EncodeToString(CalcSum) // Sum hash requires to be hex decoded
-		fmt.Printf("calculated sum: %s\n", strSum)
-		if strSum != sp[1] {
-			return fmt.Errorf("Error hash did not match")
-		} else {
-			return nil
-		}
+		h = sha1.New()
 	} else if sp[0] == "md5" {
-		h := md5.New()
-		if _, err := io.Copy(h, f); err != nil {
-			return fmt.Errorf("Unable to checksum data")
-		}
-
-		// calculate hash
-		CalcSum := h.Sum(nil)
-		strSum := hex.EncodeToString(CalcSum) // Sum hash requires to be hex decoded
-		fmt.Printf("calculated sum: %s\n", strSum)
-		if strSum != sp[1] {
-			return fmt.Errorf("Error hash did not match")
-		} else {
-			return nil
-		}
+		h = md5.New()
+	} else {
+		return fmt.Errorf("Error no supported algo defined")
 	}
 
-	return fmt.Errorf("No supported algo was specified")
+	if _, err := io.Copy(h, f); err != nil {
+		return fmt.Errorf("Unable to checksum data")
+	}
+
+	// calculate hash
+	CalcSum := h.Sum(nil)
+	strSum := hex.EncodeToString(CalcSum) // Sum hash requires to be hex decoded
+	fmt.Printf("calculated sum: %s\n", strSum)
+	if strSum != sp[1] {
+		return fmt.Errorf("Error hash did not match")
+	} else {
+		return nil
+	}
 }
 
 func getFileSize(c *s3.S3, bucket string, key string) (size int64, error error) {
