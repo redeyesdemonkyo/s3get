@@ -75,6 +75,12 @@ Usage: /tmp/go-build3389196233/b001/exe/s3get -b <bucket> -o <path/to/my.object>
         Secret key.  Defaults to using environment variable: AWS_SECRET_KEY
 ```
 
+* supports checksum verification by using the `-c <algo>:<hash>` or `--checksum <algo>:<hash>` flag
+
+```sh
+go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg -d ~/tmp/ -c sha256:8047e2a8de2be034dace7130563ce31ebd89dd00c63c93de96288ded27faa488
+```
+
 * downloading a public object from a Ceph object storage and save it to `~/tmp/` dir
 
 ```sh
