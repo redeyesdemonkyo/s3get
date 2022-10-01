@@ -118,10 +118,17 @@ func main() {
 	s3Downloader := s3manager.NewDownloader(mySession)
 
 	BaseObject := filepath.Base(srcObject)
-	var Dir, DestFile string
+	var Dir, Base, Ext, DestFile string
 	if len(Dest) > 1 {
 		Dir = filepath.Dir(Dest)
-		DestFile = Dir + "/" + BaseObject
+		Base = filepath.Base(Dest)
+		Ext = filepath.Ext(Dest)
+
+		if Ext != "" {
+			DestFile = Dir + "/" + Base
+		} else {
+			DestFile = Dir + "/" + BaseObject
+		}
 	} else {
 		DestFile = BaseObject
 	}
@@ -166,6 +173,7 @@ func main() {
 		catch(fmt.Errorf("failed to close temp file %v", err))
 	}
 
+	// move and rename temp file base on flag argument
 	if err := os.Rename(temp.Name(), DestFile); err != nil {
 		catch(fmt.Errorf("failed to rename temp file error: %v", err))
 	}
