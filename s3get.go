@@ -1,12 +1,18 @@
 package main
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
+	"hash"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -33,20 +39,29 @@ var secretKey string
 var accessKey string
 var Dest string
 var Anonyous bool
+var checksum string
 var Help bool
 
 func init() {
-	// by using `url` it overrides flag type from string to url
-	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`")
+	flag.StringVar(&EndPoint, "e", "https://storage.googleapis.com", "URL endpoint for where to get your object.  Using `url`") // by using `url` it overrides flag type from string to url
 	flag.StringVar(&srcBucket, "b", "", "Bucket name")
 	flag.StringVar(&Dest, "d", "", "Destination path ie for linux/Mac: /path/2/save/ or for Windows: C:\\temp\\ ")
 	flag.StringVar(&srcObject, "o", "", "Object to download.  If the object is under a directory include the whole path: subdir/myobject.file")
 	flag.StringVar(&secretKey, "s", os.Getenv("AWS_SECRET_KEY"), "Secret key.  Defaults to using environment variable: AWS_SECRET_KEY")
 	flag.StringVar(&accessKey, "a", os.Getenv("AWS_ACCESS_KEY"), "Access key.  Defaults to using environment variable: AWS_ACCESS_KEY")
 	flag.BoolVar(&Anonyous, "p", false, "For public objects.  Will skip authentication")
+	flag.StringVar(&checksum, "checksum", "", "the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5")
+	flag.StringVar(&checksum, "c", "", "the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5")
 	flag.BoolVar(&Help, "h", false, "Print usage info")
 }
 
+func usage() {
+	fmt.Printf(usageMessage, os.Args[0])
+	flag.PrintDefaults()
+	os.Exit(1)
+}
+
+// method for the progressbar
 type ProgressWriter struct {
 	w  io.WriterAt
 	pb *pb.ProgressBar
@@ -103,10 +118,17 @@ func main() {
 	s3Downloader := s3manager.NewDownloader(mySession)
 
 	BaseObject := filepath.Base(srcObject)
-	var Dir, DestFile string
+	var Dir, Base, Ext, DestFile string
 	if len(Dest) > 1 {
 		Dir = filepath.Dir(Dest)
-		DestFile = Dir + "/" + BaseObject
+		Base = filepath.Base(Dest)
+		Ext = filepath.Ext(Dest)
+
+		if Ext != "" {
+			DestFile = Dir + "/" + Base
+		} else {
+			DestFile = Dir + "/" + BaseObject
+		}
 	} else {
 		DestFile = BaseObject
 	}
@@ -138,15 +160,56 @@ func main() {
 		catch(fmt.Errorf("failed to download file, %v", err))
 	}
 
+	// checksum verification
+	if len(checksum) > 1 {
+		if err := verifyCheckSum(checksum, temp); err != nil {
+			temp.Close()
+			os.Remove(temp.Name())
+			catch(fmt.Errorf("checksum verification failed: %v", err))
+		}
+	}
+
 	if err := temp.Close(); err != nil {
 		catch(fmt.Errorf("failed to close temp file %v", err))
 	}
 
+	// move and rename temp file base on flag argument
 	if err := os.Rename(temp.Name(), DestFile); err != nil {
 		catch(fmt.Errorf("failed to rename temp file error: %v", err))
 	}
 
 	fmt.Printf("file downloaded, %d bytes\n", n)
+}
+
+func verifyCheckSum(c string, f *os.File) error {
+	// which hash algo from flags
+	sp := strings.Split(c, ":")
+	fmt.Printf("algo: %s hash: %s\n", sp[0], sp[1])
+
+	var h hash.Hash
+	if sp[0] == "sha256" {
+		h = sha256.New()
+	} else if sp[0] == "sha1" {
+		h = sha1.New()
+	} else if sp[0] == "md5" {
+		h = md5.New()
+	} else {
+		return fmt.Errorf("Error no supported algo defined")
+	}
+
+	if _, err := io.Copy(h, f); err != nil {
+		return fmt.Errorf("Unable to checksum data")
+	}
+
+	// calculate hash
+	CalcSum := h.Sum(nil)
+	strSum := hex.EncodeToString(CalcSum) // Sum hash requires to be hex decoded
+	fmt.Printf("calculated sum: %s\n", strSum)
+	if strSum != sp[1] {
+		return fmt.Errorf("Error hash did not match")
+	} else {
+		return nil
+	}
 }
 
 func getFileSize(c *s3.S3, bucket string, key string) (size int64, error error) {
@@ -163,15 +226,9 @@ func getFileSize(c *s3.S3, bucket string, key string) (size int64, error error) 
 	return *s.ContentLength, nil
 }
 
-func usage() {
-	fmt.Printf(usageMessage, os.Args[0])
-	flag.PrintDefaults()
-	os.Exit(1)
-}
-
 func catch(err error) {
 	if err != nil {
-		fmt.Printf("[Error] We encountered an error:\n\n\t%s\n\n", err)
+		fmt.Printf("[Error] We encountered the following error:\n\n\t%s\n\n", err)
 		os.Exit(1)
 	}
 }

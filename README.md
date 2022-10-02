@@ -59,6 +59,10 @@ Usage: /tmp/go-build3389196233/b001/exe/s3get -b <bucket> -o <path/to/my.object>
         Access key.  Defaults to using environment variable: AWS_ACCESS_KEY
   -b string
         Bucket name
+  -c string
+        the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5
+  -checksum string
+        the algo:hash to verify the oject checksum.  Algos supported are: sha256, sha1 & md5
   -d string
         Destination path ie for linux/Mac: /path/2/save/ or for Windows: C:\temp\ 
   -e url
@@ -69,6 +73,12 @@ Usage: /tmp/go-build3389196233/b001/exe/s3get -b <bucket> -o <path/to/my.object>
   -p    For public objects.  Will skip authentication
   -s string
         Secret key.  Defaults to using environment variable: AWS_SECRET_KEY
+```
+
+* supports checksum verification by using the `-c <algo>:<hash>` or `--checksum <algo>:<hash>` flag
+
+```sh
+go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg -d ~/tmp/ -c sha256:8047e2a8de2be034dace7130563ce31ebd89dd00c63c93de96288ded27faa488
 ```
 
 * downloading a public object from a Ceph object storage and save it to `~/tmp/` dir
@@ -149,6 +159,12 @@ make build
 go run s3get.go -b mybucket -o subDirectory/my.object
 ```
 
+* test downloading using checksum function
+
+```sh
+go run s3get.go -e objects-us-east-1.dream.io -p -b imgun -o capeta_v1.jpg -d ~/tmp/ -c sha256:8047e2a8de2be034dace7130563ce31ebd89dd00c63c93de96288ded27faa488
+```
+
 * test downloading public file (uses anonymous authentication) 
 
 ```sh
@@ -169,9 +185,13 @@ s3get.go -e objects-us-east-1.dream.io -p -b imgun -o Downloads/linuxmint-20.3-m
 
 ## Feature Improvements
 
-* add test cases
-* add flag for handling sha256 checks
-* add rsync like functionality
+Essentially a TODO list
+
+* add unit test via `go test -v`
+  - More info [go.dev/add-a-test](https://go.dev/doc/tutorial/add-a-test)
+* add flag for handling sha256 checks (DONE!!)
+* Fix bug where when `-d /path/to/newObjectName.file` flag is use the object is not rename correctly
+* add rsync like functionality 
 * add flag for splitting using `https://s3provider.tld/mybucket/dir/to/object.file` link rather then having to pass individual flags for provider, bucket & object
 
 ## References
